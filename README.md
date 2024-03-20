@@ -1,49 +1,38 @@
 # RVC-TTS-Pipeline
-Pipeline for TTS to RVC.  This seems to produce the best sounding TTS with the closest representation to the original speaker's voice that one may have trained on.  This works by passing in an audio file generated from some type of TTS (tortoise, vits, etc.) and then converting it using the trained weights from an RVC model.  
 
-To get this to work, pytorch must be installed first on the system to allow RVC to be installable.  If it's not, I was running into issues of having to uninstall and reinstall torch (though probably I should just adjust the requirements inside of rvc).
+RVC를 이용한 voice-conversion pipeline 이다.
 
-**It is still a work in progress, there will be bugs and issues.**
+Retrieval-based-Voice-Conversion-WebUI
+를 응용한
+https://github.com/JarodMica/rvc-tts-pipeline
+에서
+
+API로 쓰기 좋게 변형하기 위해 만들었다.
 
 ## Installation
 
 1. Install pytorch first here: https://pytorch.org/get-started/locally/
 
-2. Then, to install rvc, run the following:
+1.
 
 ```
-pip install -e git+https://github.com/JarodMica/rvc.git#egg=rvc
+pip install -e git+https://github.com/cksghkd123/rvc.git#egg=rvc
 ```
 
-3. Lastly, you need to get the ```hubert_base.pt``` and ```rmvpe.pt``` files from rvc and put them into the parent directory of whatever project you're working on (or the SAME location of whereever you're running the scripts)
-
-**If you want to install rvc-tts-pipeline as it's own package, run the following (recommended)**
+2.
 
 ```
-pip install -e git+https://github.com/JarodMica/rvc-tts-pipeline.git#egg=rvc_tts_pipe
+pip install -e git+https://github.com/cksghkd123/rvc-tts-pipeline.git#egg=rvc_tts_pipe
 ```
 
-This will allow you to import ```rvc_infer``` so that you do not have to move this package around.
+3. `hubert_base.pt` 와 `rmvpe.pt` 모델을 따로 설치할 필요가 있다.
+
+4. import `rvc_infer`
 
 ## Basic usage
-The only function that should be called is the ```rvc_convert``` function.  The only required parameters that are absolutely needed are:
-
-```model_path = path to the model```
-
-```input_path = path to the audio file to convert (or tts output audio file)```
-
-Then, it can simply be called like the following:
 
 ```
 from rvc_infer import rvc_convert
 
-rvc_convert(model_path="your_model_path_here", input_path="your_audio_path_here")
+rvc_convert(model_path="your_model.pth", input_path=input_file_path, output_file_name=file_name)
 ```
-
-The docstrings of rvc_convert details out other values you may want to play around with, probably the most important being pitch and f0method.
-
-## Notes
-Currently, the github packages ONLY work if you install them in editable mode.  Why exactly, I am not too sure but may have to do with package structure etc. If a time comes to where "-e" is not suitable for my projects, I will look for a solution when that comes.
-
-## Acknowledgements
-Huge thanks to the RVC creators as none of this would be possible without them.  This takes and uses a lot of their code in order to make this possible.

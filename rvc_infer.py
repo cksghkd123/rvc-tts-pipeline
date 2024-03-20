@@ -39,7 +39,7 @@ class Config:
                 or "1070" in self.gpu_name
                 or "1080" in self.gpu_name
             ):
-                print("16系/10系显卡和P40强制单精度")
+                print("6 시리즈/10 시리즈 그래픽 카드, P40은 단정도를 강제로 사용합니다")
                 self.is_half = False
                 for config_file in ["32k.json", "40k.json", "48k.json"]:
                     with open(f"configs/{config_file}", "r") as f:
@@ -65,10 +65,10 @@ class Config:
                 with open("trainset_preprocess_pipeline_print.py", "w") as f:
                     f.write(strr)
         elif torch.backends.mps.is_available():
-            print("没有发现支持的N卡, 使用MPS进行推理")
+            print("지원되는 엔비디아 없음, MPS를 사용하여 추론")
             self.device = "mps"
         else:
-            print("没有发现支持的N卡, 使用CPU进行推理")
+            print("지원되는 엔비디아 없음, CPU를 사용하여 추론")
             self.device = "cpu"
             self.is_half = True
 
@@ -76,13 +76,11 @@ class Config:
             self.n_cpu = cpu_count()
 
         if self.is_half:
-            # 6G显存配置
             x_pad = 3
             x_query = 10
             x_center = 60
             x_max = 65
         else:
-            # 5G显存配置
             x_pad = 1
             x_query = 6
             x_center = 38
@@ -176,7 +174,7 @@ def vc_single(
         )
         if file_index != ""
         else file_index2
-    )  # 防止小白写错，自动帮他替换掉
+    ) 
     # file_big_npy = (
     #     file_big_npy.strip(" ").strip('"').strip("\n").strip('"').strip(" ")
     # )
@@ -230,6 +228,10 @@ def get_vc(model_path):
     net_g.eval().to(device)
     if (is_half):net_g = net_g.half()
     else:net_g = net_g.float()
+
+    if config.device == 'cpu':
+        config.is_half = False
+        
     vc = VC(tgt_sr, config)
     n_spk=cpt["config"][-3]
     # return {"visible": True,"maximum": n_spk, "__type__": "update"}
@@ -247,6 +249,7 @@ def rvc_convert(model_path,
             f0_up_key=0,
             input_path=None, 
             output_dir_path=None,
+            output_file_name=None,
             _is_half="False",
             f0method="rmvpe",
             file_index="",
@@ -287,6 +290,7 @@ def rvc_convert(model_path,
     elif torch.backends.mps.is_available():
         device = "mps:0"
     else:
+        device = "cpu"
         print("Cuda or MPS not detected")
 
     if not verbose:
@@ -297,7 +301,10 @@ def rvc_convert(model_path,
 
     if output_dir_path == None:
         output_dir_path = "output"
-        output_file_name = "out.wav"
+        if output_file_name == None:
+            output_file_name = "output.wav"
+        else:
+            output_file_name = output_file_name
         output_dir = os.getcwd()
         output_file_path = os.path.join(output_dir,output_dir_path, output_file_name)
     else:
@@ -318,7 +325,6 @@ def rvc_convert(model_path,
     sys.path.append(now_dir)
 
     hubert_model=None
-
     get_vc(model_path)
     wav_opt=vc_single(0,input_path,f0_up_key,None,f0method,file_index,file_index2,index_rate,filter_radius,resample_sr,rms_mix_rate,protect)
     wavfile.write(output_file_path, tgt_sr, wav_opt)
