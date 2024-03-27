@@ -287,6 +287,7 @@ def rvc_convert(model_path,
     
     if torch.cuda.is_available():
         device = "cuda:0"
+        _is_half = "True"
     elif torch.backends.mps.is_available():
         device = "mps:0"
     else:
